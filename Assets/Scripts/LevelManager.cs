@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int _column;
     
     private SpriteRenderer _frameSprite;
-    private SpriteRenderer[,] _cells;
+    private Cell[,] _cells;
 
 
     private void Start()
@@ -45,12 +45,12 @@ public class LevelManager : MonoBehaviour
 
     private void CreateCells(GameObject cellPrefab , SpriteRenderer frame)
     {
-        _cells = new SpriteRenderer[_row,_column];
+        _cells = new Cell[_row,_column];
         
         var width = frame.bounds.size.x / _column;
         var height = frame.bounds.size.y / _row;
 
-        var cellSprite = cellPrefab.GetComponent<SpriteRenderer>();
+        var cellSprite = cellPrefab.GetComponent<Cell>().Renderer;
         var scale  = new Vector3(width / cellSprite.bounds.size.x , height / cellSprite.bounds.size.y );
 
         var leftDownPoint = new Vector2(-frame.bounds.size.x / 2 + width / 2
@@ -60,9 +60,10 @@ public class LevelManager : MonoBehaviour
         {
             for (var column = 0; column < _column; column++)
             {
-                var cell = Instantiate(cellPrefab, Vector3.zero, quaternion.identity).GetComponent<SpriteRenderer>();
+                var cell = Instantiate(cellPrefab, Vector3.zero, quaternion.identity).GetComponent<Cell>();
                 cell.transform.localScale = scale;
                 cell.transform.position = new Vector3(leftDownPoint.x + width * column , leftDownPoint.y + height * row);
+                cell.Init(row , column);
                 _cells[row, column] = cell;
             }    
         }
