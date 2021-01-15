@@ -18,6 +18,7 @@ public class LevelManager : MonoBehaviour
     
     private SpriteRenderer _frameSprite;
     private Cell[,] _cells;
+    private SwitchItemController _switchItemController;
 
 
     private void Start()
@@ -25,6 +26,13 @@ public class LevelManager : MonoBehaviour
         _frameSprite = CreateFrame(_framePrefab);
         Crop(_xCrop,_yCrop , ref _frameSprite);
         CreateCells(_cellPrefab , _frameSprite);
+        _switchItemController = FindObjectOfType<SwitchItemController>();
+        _switchItemController.OnSwitched += OnSwitched;
+    }
+
+    private void OnSwitched()
+    {
+        Debug.Log("Switch");
     }
 
     private SpriteRenderer CreateFrame(GameObject framePrefab)
