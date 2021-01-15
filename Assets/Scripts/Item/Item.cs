@@ -8,6 +8,7 @@ public class Item : MonoBehaviour
     [SerializeField]private Animator _animator;
 
     private ItemType _type;
+    public ItemType Type => _type;
     private int _score;
     
     public bool IsSwitch { get; set; }

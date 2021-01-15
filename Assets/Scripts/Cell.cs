@@ -37,6 +37,7 @@ public class Cell : MonoBehaviour
         _row = row;
         _column = coulmn;
         _textMesh.text = $"{_row} : {_column}";
+        gameObject.name = $"Cell_{_row} : {_column}";
     }
 
 

@@ -10,8 +10,8 @@ public class SwitchItemController : MonoBehaviour
     private bool _isSwitching;
     private Color _defaultCellColor;
 
-    [SerializeField] private Cell _firstCell;
-    [SerializeField] private Cell _secondCell;
+    private Cell _firstCell;
+    private Cell _secondCell;
 
     public delegate void SwitchDelegate();
     private event SwitchDelegate _onSwitched;
