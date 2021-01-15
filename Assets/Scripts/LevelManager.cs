@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -17,7 +16,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int _column;
     
     private SpriteRenderer _frameSprite;
-    private Cell[,] _cells;
+    private Dictionary<int , List<Cell>> _horizontalCells = new Dictionary<int, List<Cell>>();
+    private Dictionary<int , List<Cell>> _verticalCells = new Dictionary<int, List<Cell>>();
     private SwitchItemController _switchItemController;
 
 
@@ -33,6 +33,8 @@ public class LevelManager : MonoBehaviour
     private void OnSwitched()
     {
         Debug.Log("Switch");
+        FindChange(_horizontalCells);
+        FindChange(_verticalCells);
     }
 
     private SpriteRenderer CreateFrame(GameObject framePrefab)
@@ -55,8 +57,6 @@ public class LevelManager : MonoBehaviour
 
     private void CreateCells(GameObject cellPrefab , SpriteRenderer frame)
     {
-        _cells = new Cell[_row,_column];
-        
         var width = frame.bounds.size.x / _column;
         var height = frame.bounds.size.y / _row;
 
@@ -66,33 +66,109 @@ public class LevelManager : MonoBehaviour
         var leftDownPoint = new Vector2(-frame.bounds.size.x / 2 + width / 2
             , -frame.bounds.size.y / 2 + height / 2);
 
+        // Initial horizontal list
         for (var row = 0; row < _row; row++)
         {
+            _horizontalCells.Add(row , new List<Cell>());
+
             for (var column = 0; column < _column; column++)
             {
                 var cell = Instantiate(cellPrefab, Vector3.zero, quaternion.identity).GetComponent<Cell>();
                 cell.transform.localScale = scale;
                 cell.transform.position = new Vector3(leftDownPoint.x + width * column , leftDownPoint.y + height * row);
                 cell.Init(row , column);
-                _cells[row, column] = cell;
+                _horizontalCells[row].Add(cell);
                 CreateItem(row , column);
+                
             }    
+        }
+
+        // Initial vertical list
+        for (var col = 0; col < _column; col++)
+        {
+            _verticalCells.Add(col , new List<Cell>());
+            for (var row = 0; row < _row; row++)
+            {
+                var cell = _horizontalCells[row][col];
+                _verticalCells[col].Add(cell);
+            }
         }
 
     }
     
-    // Create items ***************************
+
+    // Create items **********************************************************
 
     [SerializeField] private ItemSO[] _itemsData;
 
     private void CreateItem(int row , int column)
     {
-        var cell = _cells[row, column];
+        var cell = _horizontalCells[row][column];
         var item = Instantiate(_itemPrefab, cell.transform.position, quaternion.identity).GetComponent<Item>();
         var index = Random.Range(0, 3);
         var data = _itemsData[index];
         item.Init(data);
         cell.Item = item;
+    }
+    
+    
+    // Check rows and columns to find same shapes ****************************
+    
+    private void FindChange(Dictionary<int , List<Cell>> dictionary)
+    {
+        var rowLen = dictionary.Count;
+
+        for (var i = 0; i < rowLen; i++)
+        {
+
+            var lst = dictionary[i];
+            var dic = SplitList(lst);
+
+            foreach (var d in dic)
+            {
+                if (d.Value.Count > 2)
+                {
+                    foreach (var l in d.Value)
+                    {
+                        Debug.Log(l.Item.Type);
+                        l.Item.gameObject.SetActive(false);
+                    }
+                }
+     
+            }
+            Debug.Log($"{i} ///////////////////////////");
+        }
+    }
+
+    private Dictionary<int , List<Cell>> SplitList(List<Cell> lst)
+    {
+        Dictionary<int ,List<Cell>> dic  = new Dictionary<int, List<Cell>>();
+        int dicIndex = 0;
+        dic.Add(dicIndex , new List<Cell>());
+        
+        for (int i = 0; i < lst.Count; i++)
+        {
+            if (dic[dicIndex].Count != 0)
+            {
+                if (lst[i].Item.Type == dic[dicIndex][0].Item.Type)
+                {
+                    dic[dicIndex].Add(lst[i]);
+                }
+                else
+                {
+                    dicIndex++;
+                    dic.Add(dicIndex , new List<Cell>());
+                    i--;
+                }
+            }
+            else
+            {
+                dic[dicIndex].Add(lst[i]);
+            }
+        }
+
+        return dic;
+
     }
     
 }
