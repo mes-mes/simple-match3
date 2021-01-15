@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: a446b9c395b306047a9b55d51b3333c0, type: 3}
-  m_Color: {r: 1, g: 0.43387187, b: 0.3726415, a: 1}
+  m_Color: {r: 0.3207547, g: 0.40392157, b: 0.3207547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -298,7 +298,7 @@ GameObject:
   - component: {fileID: 6090960184648167292}
   - component: {fileID: 1096658042883771600}
   m_Layer: 0
-  m_Name: cell
+  m_Name: Cell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

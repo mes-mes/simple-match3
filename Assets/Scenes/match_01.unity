@@ -155,10 +155,16 @@ MonoBehaviour:
     type: 3}
   _cellPrefab: {fileID: 6260627928170117769, guid: 598c67cae2da19442a3a4ffe6807ea97,
     type: 3}
+  _itemPrefab: {fileID: 6260627928170117769, guid: 51f4a93eac83ff04e81da8b552050480,
+    type: 3}
   _xCrop: 5
   _yCrop: 10
   _row: 5
   _column: 10
+  _itemsData:
+  - {fileID: 11400000, guid: 6cb3ad6e9bd31404cb089c5da581fe03, type: 2}
+  - {fileID: 11400000, guid: a771cd8d62e567841b1f6455ce067038, type: 2}
+  - {fileID: 11400000, guid: cafcfd331a030dd4ca6e5abe6d1dcde9, type: 2}
 --- !u!4 &241015660
 Transform:
   m_ObjectHideFlags: 0
