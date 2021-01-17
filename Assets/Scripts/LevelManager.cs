@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public class LevelManager : MonoBehaviour
@@ -122,17 +123,14 @@ public class LevelManager : MonoBehaviour
             {
                 if (d.Value.Count > 2)
                 {
-                    foreach (var l in d.Value)
+                    foreach (var cells in d.Value)
                     {
-                        Debug.Log(l.Item.Type);
-                        l.Item.gameObject.SetActive(false);
-                        l.Item = null;
+                        cells.Item.gameObject.SetActive(false);
+                        cells.IsFree = true;
+                        //cells.Item = null;
                     }
                 }
-
             }
-
-            Debug.Log($"{i} ///////////////////////////");
         }
     }
 
@@ -180,24 +178,47 @@ public class LevelManager : MonoBehaviour
     private void Replacement()
     {
         Cell firstFreeCell = null;
+        Queue<Cell> destroyedItems = new Queue<Cell>();
+        var rowIndex = 0;
         
-        for (var col = 0; col < _column; col++)
+        for (var col = 0; col < 1; col++)
         {
             for (var row = 0; row < _row; row++)
             {
-                if (_verticalCells[col][row].Item == null && firstFreeCell == null)
-                    firstFreeCell = _verticalCells[col][row];
-
-                if (_verticalCells[col][row].Item != null && firstFreeCell != null)
+                if (_verticalCells[col][row].IsFree && firstFreeCell == null)
                 {
+                    firstFreeCell = _verticalCells[col][row];
+                    rowIndex++;
+
+                    continue;
+                }
+
+                if (_verticalCells[col][row].IsFree == false && firstFreeCell != null)
+                {
+                    var temp = firstFreeCell.Item;
                     firstFreeCell.Item = _verticalCells[col][row].Item;
-                    _verticalCells[col][row].Item = null;
+                    _verticalCells[col][row].Item = temp;
+                    _verticalCells[col][row].IsFree = true;
                     firstFreeCell.Item.transform.position = firstFreeCell.transform.position;
+                    firstFreeCell.IsFree = false;
                     
-                    if(row < _row - 4)
-                        firstFreeCell = _verticalCells[col][row + 1];
+                    //rowIndex++;
+
+                    if(rowIndex < _row - 1)
+                        firstFreeCell = _verticalCells[col][rowIndex];
+
                 }
             }
+            /*
+            for (var row = 0; row < _row; row++)
+            {
+                if(_verticalCells[col][row].IsFree)
+                    destroyedItems.Enqueue(_verticalCells[col][row]);
+
+            }
+            
+            firstFreeCell = null;
+*/
         }
         
     }
