@@ -99,7 +99,7 @@ public class LevelManager : MonoBehaviour
     {
         var cell = _horizontalCells[row][column];
         var item = Instantiate(_itemPrefab, cell.transform.position, quaternion.identity).GetComponent<Item>();
-        var index = Random.Range(0, 3);
+        var index = Random.Range(0, _itemsData.Length);
         var data = _itemsData[index];
         item.Init(data);
         cell.Item = item;
@@ -115,10 +115,10 @@ public class LevelManager : MonoBehaviour
 
         for (var i = 0; i < len; i++)
         {
-
             var lst = dictionary[i];
             var dic = SplitList(lst);
 
+            // Navigate in a row/column
             foreach (var d in dic)
             {
                 if (d.Value.Count > 2)
@@ -127,7 +127,6 @@ public class LevelManager : MonoBehaviour
                     {
                         cells.Item.gameObject.SetActive(false);
                         cells.IsFree = true;
-                        //cells.Item = null;
                     }
                 }
             }
@@ -162,7 +161,6 @@ public class LevelManager : MonoBehaviour
         }
 
         return dic;
-
     }
 
     #endregion
@@ -178,49 +176,58 @@ public class LevelManager : MonoBehaviour
     private void Replacement()
     {
         Cell firstFreeCell = null;
-        Queue<Cell> destroyedItems = new Queue<Cell>();
-        var rowIndex = 0;
-        
+
         for (var col = 0; col < 1; col++)
         {
+            // Find the free cells and put items into the cells
             for (var row = 0; row < _row; row++)
             {
                 if (_verticalCells[col][row].IsFree && firstFreeCell == null)
                 {
                     firstFreeCell = _verticalCells[col][row];
-                    rowIndex++;
-
                     continue;
                 }
 
                 if (_verticalCells[col][row].IsFree == false && firstFreeCell != null)
                 {
-                    var temp = firstFreeCell.Item;
-                    firstFreeCell.Item = _verticalCells[col][row].Item;
-                    _verticalCells[col][row].Item = temp;
-                    _verticalCells[col][row].IsFree = true;
-                    firstFreeCell.Item.transform.position = firstFreeCell.transform.position;
-                    firstFreeCell.IsFree = false;
-                    
-                    //rowIndex++;
+                    Swap(firstFreeCell , _verticalCells[col][row]);
+                    var rowIndex = firstFreeCell.Row + 1;
 
                     if(rowIndex < _row - 1)
                         firstFreeCell = _verticalCells[col][rowIndex];
 
                 }
             }
-            /*
-            for (var row = 0; row < _row; row++)
-            {
-                if(_verticalCells[col][row].IsFree)
-                    destroyedItems.Enqueue(_verticalCells[col][row]);
-
-            }
             
             firstFreeCell = null;
-*/
+
+            // Init destroyed items again
+            for (var row = 0; row < _row; row++)
+            {
+                var cell = _verticalCells[col][row];
+                
+                if (cell.IsFree)
+                {
+                    cell.Item.transform.position = cell.transform.position;
+                    cell.Item.gameObject.SetActive(true);
+                    
+                    var index = Random.Range(0, _itemsData.Length);
+                    var data = _itemsData[index];
+                    cell.Item.Init(data);
+                    cell.IsFree = false;
+                }
+            }
         }
-        
+    }
+
+    private void Swap(Cell cellA , Cell cellB)
+    {
+        var temp = cellA.Item;
+        cellA.Item = cellB.Item;
+        cellB.Item = temp;
+        cellB.IsFree = true;
+        cellA.Item.transform.position = cellA.transform.position;
+        cellA.IsFree = false;
     }
 
     private void Update()
