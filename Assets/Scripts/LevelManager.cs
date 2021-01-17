@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -123,10 +124,10 @@ public class LevelManager : MonoBehaviour
             {
                 if (d.Value.Count > 2)
                 {
-                    foreach (var cells in d.Value)
+                    foreach (var cell in d.Value)
                     {
-                        cells.Item.gameObject.SetActive(false);
-                        cells.IsFree = true;
+                        cell.Item.gameObject.SetActive(false);
+                        cell.IsFree = true;
                     }
                 }
             }
@@ -170,7 +171,7 @@ public class LevelManager : MonoBehaviour
         Debug.Log("Switch");
         //FindChange(_horizontalCells);
         FindChange(_verticalCells);
-       
+        Replacement();
     }
 
     private void Replacement()
@@ -191,6 +192,9 @@ public class LevelManager : MonoBehaviour
                 if (_verticalCells[col][row].IsFree == false && firstFreeCell != null)
                 {
                     Swap(firstFreeCell , _verticalCells[col][row]);
+                    //firstFreeCell.Item.transform.position = firstFreeCell.transform.position;
+                    firstFreeCell.Item.Movement(firstFreeCell.transform.position);
+                    
                     var rowIndex = firstFreeCell.Row + 1;
 
                     if(rowIndex < _row - 1)
@@ -201,22 +205,27 @@ public class LevelManager : MonoBehaviour
             
             firstFreeCell = null;
 
+            
             // Init destroyed items again
-            for (var row = 0; row < _row; row++)
+            var freeCells = (from cell in _verticalCells[col] where cell.IsFree select cell).ToList();
+            
+            for (var i = 0; i < freeCells.Count; i++)
             {
-                var cell = _verticalCells[col][row];
+                var cell = freeCells[i];
+
+                cell.Item.gameObject.SetActive(true);
+                var index = Random.Range(0, _itemsData.Length);
+                var data = _itemsData[index];
+                cell.Item.Init(data);
+                cell.IsFree = false;
                 
-                if (cell.IsFree)
-                {
-                    cell.Item.transform.position = cell.transform.position;
-                    cell.Item.gameObject.SetActive(true);
-                    
-                    var index = Random.Range(0, _itemsData.Length);
-                    var data = _itemsData[index];
-                    cell.Item.Init(data);
-                    cell.IsFree = false;
-                }
+                //cell.Item.transform.position = cell.transform.position;
+                var pos = _verticalCells[col][_row - 1].transform.position ;
+                pos = new Vector2(pos.x , (pos.y + _verticalCells[col][_row - 1].Renderer.bounds.size.y * (i + 1)));
+                cell.Item.transform.position = pos;
+                cell.Item.Movement(cell.transform.position);
             }
+            
         }
     }
 
@@ -226,7 +235,7 @@ public class LevelManager : MonoBehaviour
         cellA.Item = cellB.Item;
         cellB.Item = temp;
         cellB.IsFree = true;
-        cellA.Item.transform.position = cellA.transform.position;
+        //cellA.Item.transform.position = cellA.transform.position;
         cellA.IsFree = false;
     }
 

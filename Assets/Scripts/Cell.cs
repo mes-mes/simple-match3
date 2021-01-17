@@ -6,7 +6,7 @@ using UnityEngine;
 public class Cell : MonoBehaviour
 {
 
-    private bool _isFree;
+    [SerializeField]private bool _isFree;
     public bool IsFree
     {
         get { return _isFree; }
@@ -19,7 +19,7 @@ public class Cell : MonoBehaviour
     private int _column;
     public int Column=> _column;
 
-    private Item _item;
+    [SerializeField]private Item _item;
     public Item Item
     {
         get { return _item; }

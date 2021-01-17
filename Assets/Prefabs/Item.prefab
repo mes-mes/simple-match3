@@ -148,6 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderer: {fileID: 5029805494347537686}
   _animator: {fileID: 3209037086056552945}
+  _speedMove: 10
 --- !u!1001 &1741371373839318115
 PrefabInstance:
   m_ObjectHideFlags: 0
