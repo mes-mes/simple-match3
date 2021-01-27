@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
@@ -112,7 +113,7 @@ public class LevelManager : MonoBehaviour
 
     private void FindChange(Dictionary<int, List<Cell>> dictionary)
     {
-        var len = 1;// dictionary.Count;
+        var len =  dictionary.Count;
 
         for (var i = 0; i < len; i++)
         {
@@ -168,8 +169,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnSwitched()
     {
-        Debug.Log("Switch");
-        //FindChange(_horizontalCells);
+        FindChange(_horizontalCells);
         FindChange(_verticalCells);
         Replacement();
     }
@@ -178,7 +178,7 @@ public class LevelManager : MonoBehaviour
     {
         Cell firstFreeCell = null;
 
-        for (var col = 0; col < 1; col++)
+        for (var col = 0; col < _column; col++)
         {
             // Find the free cells and put items into the cells
             for (var row = 0; row < _row; row++)
@@ -193,7 +193,9 @@ public class LevelManager : MonoBehaviour
                 {
                     Swap(firstFreeCell , _verticalCells[col][row]);
                     //firstFreeCell.Item.transform.position = firstFreeCell.transform.position;
-                    firstFreeCell.Item.Movement(firstFreeCell.transform.position);
+                    firstFreeCell.Item.Movement(firstFreeCell.transform.position , OnFinishMovements);
+                    _movingItems.Add(firstFreeCell.Item);
+
                     
                     var rowIndex = firstFreeCell.Row + 1;
 
@@ -223,11 +225,45 @@ public class LevelManager : MonoBehaviour
                 var pos = _verticalCells[col][_row - 1].transform.position ;
                 pos = new Vector2(pos.x , (pos.y + _verticalCells[col][_row - 1].Renderer.bounds.size.y * (i + 1)));
                 cell.Item.transform.position = pos;
-                cell.Item.Movement(cell.transform.position);
+                cell.Item.Movement(cell.transform.position , OnFinishMovements);
+                _movingItems.Add(cell.Item);
             }
             
         }
     }
+    
+
+    private void OnFinishMovements()
+    {
+
+        StartCoroutine(FinishMovement());
+
+    }
+
+    private readonly WaitForSeconds _movementDelay = new WaitForSeconds(0.5f); 
+    
+    private IEnumerator FinishMovement()
+    {
+        yield return _movementDelay;
+        
+        var isMoving = false;
+        foreach (var item in _movingItems)
+        {
+            if (!item.IsMove) continue;
+            isMoving = true;
+            break;
+        }
+        
+        if(!isMoving)
+        {
+            _movingItems.Clear();
+            OnSwitched();
+
+        }
+        
+    }
+
+    private List<Item> _movingItems = new List<Item>();
 
     private void Swap(Cell cellA , Cell cellB)
     {
@@ -237,12 +273,6 @@ public class LevelManager : MonoBehaviour
         cellB.IsFree = true;
         //cellA.Item.transform.position = cellA.transform.position;
         cellA.IsFree = false;
-    }
-
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.R))
-            Replacement();
     }
 
 }
