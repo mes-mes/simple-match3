@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,20 +22,16 @@ public class Item : MonoBehaviour
         _score = data.Score;
     }
 
-    public void Movement(Vector2 pos)
+    public void Movement(Vector2 pos , Action onFinishMovement = null)
     {
-        StartCoroutine(Move(pos));
+        StartCoroutine(Move(pos , onFinishMovement));
     }
-    
-    public void Movement(Vector2 pos , float delay)
-    {
-        StartCoroutine(Move(pos , delay));
-    }
-    
+
     public bool IsMove { get; private set; }
-    private IEnumerator Move(Vector2 pos , float delay = 0)
+    
+    private IEnumerator Move(Vector2 pos , Action onFinishMovement = null)
     {
-        yield return new WaitForSeconds(delay);
+        //yield return new WaitForSeconds(delay);
         var wait = new WaitForEndOfFrame();
         IsMove = true;
 
@@ -46,6 +43,8 @@ public class Item : MonoBehaviour
             {
                 transform.position = pos;
                 IsMove = false;
+                
+                onFinishMovement?.Invoke();
             }
                 
             yield return wait;
