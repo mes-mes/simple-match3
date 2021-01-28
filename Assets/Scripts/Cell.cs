@@ -38,14 +38,19 @@ public class Cell : MonoBehaviour
         _column = coulmn;
         _textMesh.text = $"{_row} : {_column}";
         gameObject.name = $"Cell_{_row} : {_column}";
+
+        _audioSource = GetComponent<AudioSource>();
     }
 
 
     [SerializeField] private ParticleSystem _particle;
+    private AudioSource _audioSource;
+    public AudioSource AudioSource => _audioSource;
     public void DestroyItem()
     {
         _particle.Play();
-        _item.gameObject.SetActive(false);
+       // _audioSource.Play();
+        //_item.gameObject.SetActive(false);
     }
     
 

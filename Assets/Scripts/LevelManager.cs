@@ -134,15 +134,14 @@ public class LevelManager : MonoBehaviour
                 {
                     foreach (var cell in d.Value)
                     {
-                        //cell.Item.gameObject.SetActive(false);
                         cell.DestroyItem();
-                        
                         cell.IsFree = true;
                     }
                     
                     if (!isFound)
                         isFound = true;
                     
+                    d.Value[0].AudioSource.Play();
                     _scoreSystem.Score = d.Value.Count;
                 }
             }
