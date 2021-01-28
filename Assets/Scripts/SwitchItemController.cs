@@ -1,29 +1,31 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEditor.PackageManager;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class SwitchItemController : MonoBehaviour
 {
+    public delegate void SwitchDelegate();
+
     private Camera _camera;
     private bool _isSwitching;
     private Color _defaultCellColor;
-
     private Cell _firstCell;
     private Cell _secondCell;
-
-    public delegate void SwitchDelegate();
     private event SwitchDelegate _onSwitched;
+    
     public SwitchDelegate OnSwitched
     {
         get { return _onSwitched; }
         set { _onSwitched = value; }
     }
+    public bool IsActive { get; set; }
+    
 
     private void Start()
     {
         _camera = FindObjectOfType<Camera>();
+        IsActive = true;
     }
     private void SelectCell(Collider2D coll)
     {
@@ -44,16 +46,13 @@ public class SwitchItemController : MonoBehaviour
     }
     private void Switch()
     {
-        if(IsValidToSwich(_firstCell , _secondCell))
+        if(IsValidToSwitch(_firstCell , _secondCell))
         {
-            _secondCell.Item.transform.position = _firstCell.transform.position;
-            _firstCell.Item.transform.position = _secondCell.transform.position;
-            
+
+            StartCoroutine(Movement(_firstCell.Item.transform, _secondCell.Item.transform , _onSwitched));
             var temp = _firstCell.Item;
             _firstCell.Item = _secondCell.Item;
             _secondCell.Item = temp;
-            _onSwitched?.Invoke();
-            Debug.Log("valid");
 
         }
         else
@@ -68,7 +67,7 @@ public class SwitchItemController : MonoBehaviour
         _secondCell = null;
 
     }
-    private bool IsValidToSwich(Cell cellA , Cell cellB)
+    private bool IsValidToSwitch(Cell cellA , Cell cellB)
     {
        
         if ((cellA.Row - cellB.Row == 0 &&   Mathf.Abs(cellA.Column - cellB.Column) == 1)
@@ -77,8 +76,53 @@ public class SwitchItemController : MonoBehaviour
         
         return false;
     }
+
+    private IEnumerator Movement(Transform firstItem ,Transform secondItem , SwitchDelegate onSwitched = null)
+    {
+        var pos1 = firstItem.position;
+        var pos2 = secondItem.position;
+        var speed = 5f * Time.deltaTime;
+        var delay = new WaitForSeconds(0.3f);
+        onSwitched = _onSwitched;
+        
+        while (true)
+        {
+            secondItem.position = Vector3.MoveTowards(secondItem.position , pos1 , speed);
+            firstItem.position = Vector3.MoveTowards(firstItem.position , pos2 , speed);
+
+            // at the end of movement
+            if (Vector3.Distance(firstItem.position, pos2) < 0.1f)
+            {
+                firstItem.position = pos2;
+                secondItem.position = pos1;
+                yield return delay;
+                onSwitched?.Invoke();
+                Debug.Log("valid");
+                yield break;
+            }
+
+            yield return null;
+        }
+        
+
+        
+    }
+
+    public void RevertSwitching()
+    {
+        /*
+        // movement items to the first pos
+        StartCoroutine(Movement(_firstItem, _secondItem ));
+        IsActive = true;
+        var temp = _firstCell.Item;
+        _firstCell.Item = _secondCell.Item;
+        _secondCell.Item = temp;
+        */
+    }
+
     private void Update()
     {
+        if (!IsActive) return;
         if (_isSwitching) return;
         
         if (Input.GetMouseButtonUp(0))

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
+public enum DimensionMatching
+{
+    Horizontal , Vertical 
+}
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private GameObject _framePrefab;
@@ -111,8 +114,10 @@ public class LevelManager : MonoBehaviour
 
     #region Check rows and columns to find same shapes
 
-    private void FindChange(Dictionary<int, List<Cell>> dictionary)
+    private bool FindChange(Dictionary<int, List<Cell>> dictionary )
     {
+        bool isFound = false;
+        
         var len =  dictionary.Count;
 
         for (var i = 0; i < len; i++)
@@ -130,9 +135,14 @@ public class LevelManager : MonoBehaviour
                         cell.Item.gameObject.SetActive(false);
                         cell.IsFree = true;
                     }
+                    
+                    if (!isFound)
+                        isFound = true;
                 }
             }
         }
+
+        return isFound;
     }
 
     private Dictionary<int, List<Cell>> SplitList(List<Cell> lst)
@@ -167,12 +177,57 @@ public class LevelManager : MonoBehaviour
 
     #endregion
 
+    
     private void OnSwitched()
     {
-        FindChange(_horizontalCells);
-        FindChange(_verticalCells);
-        Replacement();
+        var isExistChange = false;
+        
+        // try to find matched items in horizontal
+        var isHorizontal = FindChange(_horizontalCells);
+        var isVertical = false;
+        
+        // try to find matched items in Vertical
+        if(!isHorizontal)
+            isVertical = FindChange(_verticalCells );
+
+        isExistChange = isHorizontal || isVertical;
+        
+        if(isExistChange)
+            Replacement();
+        else
+        {
+            _switchItemController.IsActive = true;
+        }
+
+            
+        
     }
+
+    public void OnSelectItemToSwitch()
+    {
+        var isExistChange = false;
+        
+        // try to find matched items in horizontal
+        var isHorizontal = FindChange(_horizontalCells);
+        var isVertical = false;
+        
+        // try to find matched items in Vertical
+        if(!isHorizontal)
+            isVertical = FindChange(_verticalCells );
+
+        isExistChange = isHorizontal || isVertical;
+        
+        if(isExistChange)
+            Replacement();
+        else
+        {
+            _switchItemController.RevertSwitching();
+        }
+    }
+
+
+
+    private DimensionMatching _currentDimension;
 
     private void Replacement()
     {
@@ -231,7 +286,6 @@ public class LevelManager : MonoBehaviour
             
         }
     }
-    
 
     private void OnFinishMovements()
     {
