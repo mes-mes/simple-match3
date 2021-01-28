@@ -53,6 +53,7 @@ public class SwitchItemController : MonoBehaviour
             var temp = _firstCell.Item;
             _firstCell.Item = _secondCell.Item;
             _secondCell.Item = temp;
+            IsActive = false;
 
         }
         else
