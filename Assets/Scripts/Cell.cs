@@ -41,4 +41,13 @@ public class Cell : MonoBehaviour
     }
 
 
+    [SerializeField] private ParticleSystem _particle;
+    public void DestroyItem()
+    {
+        _particle.Play();
+        _item.gameObject.SetActive(false);
+    }
+    
+
+
 }

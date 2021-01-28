@@ -6,12 +6,13 @@ using UnityEngine;
 public class Item : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _renderer;
-    [SerializeField] private Animator _animator;
     [SerializeField] private float _speedMove = 10f;
 
     private ItemType _type;
     public ItemType Type => _type;
     private int _score;
+
+    public int Score => _score;
 
     public bool IsSwitch { get; set; }
 
@@ -22,7 +23,7 @@ public class Item : MonoBehaviour
         _score = data.Score;
     }
 
-    public void Movement(Vector2 pos , Action onFinishMovement = null)
+    public void Movement(Vector2 pos , Action onFinishMovement = null )
     {
         StartCoroutine(Move(pos , onFinishMovement));
     }

@@ -27,6 +27,7 @@ public class LevelManager : MonoBehaviour
     private Dictionary<int, List<Cell>> _horizontalCells = new Dictionary<int, List<Cell>>();
     private Dictionary<int, List<Cell>> _verticalCells = new Dictionary<int, List<Cell>>();
     private SwitchItemController _switchItemController;
+    private ScoreSystem _scoreSystem;
 
 
     private void Start()
@@ -35,6 +36,7 @@ public class LevelManager : MonoBehaviour
         Crop(_xCrop, _yCrop, ref _frameSprite);
         CreateCells(_cellPrefab, _frameSprite);
         _switchItemController = FindObjectOfType<SwitchItemController>();
+        _scoreSystem = FindObjectOfType<ScoreSystem>();
         _switchItemController.OnSwitched += OnSwitched;
     }
 
@@ -132,12 +134,16 @@ public class LevelManager : MonoBehaviour
                 {
                     foreach (var cell in d.Value)
                     {
-                        cell.Item.gameObject.SetActive(false);
+                        //cell.Item.gameObject.SetActive(false);
+                        cell.DestroyItem();
+                        
                         cell.IsFree = true;
                     }
                     
                     if (!isFound)
                         isFound = true;
+                    
+                    _scoreSystem.Score = d.Value.Count;
                 }
             }
         }
@@ -145,6 +151,8 @@ public class LevelManager : MonoBehaviour
         return isFound;
     }
 
+    
+    
     private Dictionary<int, List<Cell>> SplitList(List<Cell> lst)
     {
         var dic = new Dictionary<int, List<Cell>>();

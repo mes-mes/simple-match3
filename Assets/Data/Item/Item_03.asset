@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemType: 2
   Sprite: {fileID: 21300000, guid: 061a9f37235ff64419885d9f3728ac65, type: 3}
-  Score: 2
+  Score: 1
