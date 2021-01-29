@@ -146,4 +146,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _renderer: {fileID: 5029805494347537686}
-  _speedMove: 5
+  _speedMove: 8

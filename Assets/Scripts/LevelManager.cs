@@ -28,6 +28,7 @@ public class LevelManager : MonoBehaviour
     private Dictionary<int, List<Cell>> _verticalCells = new Dictionary<int, List<Cell>>();
     private SwitchItemController _switchItemController;
     private ScoreSystem _scoreSystem;
+    private Animator _cameraAnimator;
 
 
     private void Start()
@@ -37,6 +38,7 @@ public class LevelManager : MonoBehaviour
         CreateCells(_cellPrefab, _frameSprite);
         _switchItemController = FindObjectOfType<SwitchItemController>();
         _scoreSystem = FindObjectOfType<ScoreSystem>();
+        _cameraAnimator = FindObjectOfType<Camera>().GetComponent<Animator>();
         _switchItemController.OnSwitched += OnSwitched;
     }
 
@@ -143,6 +145,7 @@ public class LevelManager : MonoBehaviour
                     
                     d.Value[0].AudioSource.Play();
                     _scoreSystem.Score = d.Value.Count;
+                    _cameraAnimator.SetTrigger("Shake");
                 }
             }
         }
